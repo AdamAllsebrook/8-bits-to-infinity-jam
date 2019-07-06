@@ -86,24 +86,17 @@ function HC:polygon(...)
 	return self:register(newPolygonShape(...))
 end
 
-function HC:rectangle(x,y,w,h,owner,tags)
-	local p = self:polygon(x,y, x+w,y, x+w,y+h, x,y+h)
-	p.owner = owner or {}
-	p.tags = tags or {}
-	return p
+function HC:rectangle(x,y,w,h)
+	return self:polygon(x,y, x+w,y, x+w,y+h, x,y+h)
 end
 
-function HC:circle(x,y,r,owner,tags)
-	local p = self:register(newCircleShape(x,y,r))
-	p.owner = owner or {}
-	p.tags = tags or {}
-	return p
+function HC:circle(x,y,r)
+	return self:register(newCircleShape(x,y,r))
 end
 
 function HC:point(x,y)
 	return self:register(newPointShape(x,y))
 end
-
 
 -- collision detection
 function HC:neighbors(shape)
@@ -112,16 +105,12 @@ function HC:neighbors(shape)
 	return neighbors
 end
 
-function HC:collisions(shape, tags, notTags)
+function HC:collisions(shape)
 	local candidates = self:neighbors(shape)
 	for other in pairs(candidates) do
 		local collides, dx, dy = shape:collidesWith(other)
 		if collides then
-			if table.shareElement(other.tags or {}, tags) then
-				rawset(candidates, other, {dx,dy, x=dx, y=dy})
-			else
-				rawset(candidates, other, nil)
-			end
+			rawset(candidates, other, {dx,dy, x=dx, y=dy})
 		else
 			rawset(candidates, other, nil)
 		end
@@ -152,7 +141,6 @@ return setmetatable({
 
 	polygon   = function(...) return instance:polygon(...) end,
 	rectangle = function(...) return instance:rectangle(...) end,
-	rect 			= function(...) return instance:rect(...) end,
 	circle    = function(...) return instance:circle(...) end,
 	point     = function(...) return instance:point(...) end,
 

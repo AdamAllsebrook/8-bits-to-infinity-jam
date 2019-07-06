@@ -12,6 +12,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest')
     love.graphics.setLineStyle('rough')
 
+    scale = 4
     shader = love.graphics.newShader [[
     extern number scale;
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords ){
@@ -21,7 +22,7 @@ function love.load()
     return pixel * color;
     }
     ]]
-    shader:send("scale", 4)
+    shader:send("scale", scale)
 
     time = 1
 
@@ -29,6 +30,10 @@ function love.load()
     Counter = require('counter')
     Player = require('player')
     Enemy = require('enemy')
+    BasicEnemy = require('enemies.basic')
+    TurretEnemy = require('enemies.turret')
+    SpikyEnemy = require('enemies.spiky')
+    Bullet = require('bullet')
     Game = require('game')
 
     game = Game()
