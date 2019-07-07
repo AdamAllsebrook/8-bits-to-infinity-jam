@@ -44,11 +44,11 @@ function Shield:update(dt, pos, angle, player)
                     local speed = other.owner.delta:len()
                     other.owner.delta = Vector.fromPolar(angle, speed * 1.5)
                 end
-            elseif other.owner.spiky then  -- this doesnt work as it needs the spikes hit circle but that is removed in spikes.lua after it is used
+            elseif other.owner.spikes then
                 local diff = (pos - Vector(other:center())):normalized()
                 local angleTo = diff:angleTo(Vector(-1, 0)) % (2 * math.pi)
                 if self.angle - self.current / 2 <= angleTo and angleTo <= self.angle + self.current / 2 then 
-                    player:resolveCollision(Vector(0, 0), other.owner.owner.rect)
+                    player:resolveCollision(Vector(0, 0), other)
                 end
             end
         end

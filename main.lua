@@ -33,6 +33,7 @@ function love.load()
     BasicEnemy = require('enemies.basic')
     TurretEnemy = require('enemies.turret')
     SpikyEnemy = require('enemies.spiky')
+    SplitterEnemy = require('enemies.splitter')
     Bullet = require('bullet')
     Game = require('game')
 

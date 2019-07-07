@@ -49,3 +49,12 @@ end
 function love.math.randomChoice(list)
     return list[love.math.random(#list)]
 end
+
+function love.math.randomf(min, max, precision)
+	local precision = precision or 0
+	local num = math.random()
+	local range = math.abs(max - min)
+	local offset = range * num
+	local randomnum = min + offset
+	return math.floor(randomnum * math.pow(10, precision) + 0.5) / math.pow(10, precision)
+end

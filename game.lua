@@ -29,7 +29,7 @@ function Game:spawnEnemy()
     if self.wave >= 4 then
         list[#list + 1] = TurretEnemy
     end
-    if self.wave >= 10 then
+    if self.wave >= 1 then
         list[#list + 1] = SpikyEnemy
     end
     local x, y, empty, rect = 0, 0, false
@@ -76,12 +76,13 @@ function Game:draw()
             obj:draw()
         end
     end
-    love.graphics.print(self.player.health)
     self.player:draw()
     love.graphics.setCanvas()
     love.graphics.setShader(shader)
     love.graphics.draw(c)
     love.graphics.setShader()
+    love.graphics.print(self.player.health)
+    love.graphics.print(self.wave, 20, 0)
 end
 
 return Game

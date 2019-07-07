@@ -14,7 +14,7 @@ end
 
 function Spiky:draw()
     self.super.draw(self)
-    self.spikes:draw(Vector(self.rect:center()), self.r)
+    self.spikes:draw(Vector(self.rect:center()))
 end
 
 return Spiky
