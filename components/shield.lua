@@ -1,7 +1,7 @@
 Shield = Object:extend()
 
 function Shield:new(pos, r)
-    self.max = 2 * math.pi / 3
+    self.max = math.pi
     self.current = self.max
     self.down = false
     self.chargeRate = 2
@@ -9,12 +9,12 @@ function Shield:new(pos, r)
     self.time = 1
     self.repress = false
     self.angle = 0
-    self.rect = HC.circle(pos.x, pos.y, r + 3)
+    self.rect = HC.circle(pos.x, pos.y, r + 4)
     HC.remove(self.rect)
     self.r = r
 end
 
-function Shield:update(dt, pos, angle)
+function Shield:update(dt, pos, angle, player)
     if love.mouse.isDown(2) and not self.repress then
         self.down = true
         self.current = lume.clamp(self.current - dt * self.chargeRate, 0, self.max)
@@ -43,6 +43,12 @@ function Shield:update(dt, pos, angle)
                     other:move(-separating_vector.x, -separating_vector.y)  
                     local speed = other.owner.delta:len()
                     other.owner.delta = Vector.fromPolar(angle, speed * 1.5)
+                end
+            elseif other.owner.spiky then  -- this doesnt work as it needs the spikes hit circle but that is removed in spikes.lua after it is used
+                local diff = (pos - Vector(other:center())):normalized()
+                local angleTo = diff:angleTo(Vector(-1, 0)) % (2 * math.pi)
+                if self.angle - self.current / 2 <= angleTo and angleTo <= self.angle + self.current / 2 then 
+                    player:resolveCollision(Vector(0, 0), other.owner.owner.rect)
                 end
             end
         end

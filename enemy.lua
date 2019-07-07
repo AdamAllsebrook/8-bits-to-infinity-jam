@@ -4,6 +4,12 @@ function Enemy:new(pos, r)
     Enemy.super.new(self, pos, r)
     self.thickness = 3
     self.health = 1
+    self.mass = .95
+end
+
+function Enemy:kill()
+    Enemy.super.kill(self)
+    game.numEnemies = game.numEnemies - 1
 end
 
 function Enemy:update(dt)

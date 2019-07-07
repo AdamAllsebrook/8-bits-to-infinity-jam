@@ -4,7 +4,7 @@ local Charge = require('components.charge')
 local Shield = require('components.shield')
 
 function Player:new(pos)
-    self.super.new(self, pos, 6)
+    self.super.new(self, pos, 5)
     self.charge = Charge()
     self.shield = Shield(pos, self.r)
 
@@ -27,12 +27,18 @@ function Player:attack()
     self.charge.time = 1
 end
 
+function Player:kill()
+    self.super.kill(self)
+    game:kill()
+end
+
 function Player:update(dt)
+    --print(self.health)
     self.super.update(self, dt)
     if self.charge:update(dt) then
         self:attack()
     end
-    self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle())
+    self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle(), self)
     time = math.min(self.shield.time, self.charge.time)
 end
 

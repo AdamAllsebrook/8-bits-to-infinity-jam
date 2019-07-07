@@ -12,7 +12,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest')
     love.graphics.setLineStyle('rough')
 
-    scale = 4
+    scale = 6
     shader = love.graphics.newShader [[
     extern number scale;
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords ){

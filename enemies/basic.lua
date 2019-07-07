@@ -1,7 +1,8 @@
 Basic = Enemy:extend()
 
 function Basic:new(pos)
-    self.super.new(self, pos, 5)
+    self.super.new(self, pos, 4)
+    self.thickness = 2
 end
 
 function Basic:update(dt)

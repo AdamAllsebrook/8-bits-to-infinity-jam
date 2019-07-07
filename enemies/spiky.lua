@@ -3,8 +3,8 @@ Spiky = Enemy:extend()
 local Spikes = require('components.spikes')
 
 function Spiky:new(pos)
-    self.super.new(self, pos, 7)
-    self.spikes = Spikes(pos, self.r)
+    self.super.new(self, pos, 4)
+    self.spikes = Spikes(pos, self.r, self)
 end
 
 function Spiky:update(dt)

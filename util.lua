@@ -43,5 +43,9 @@ function drawTriangle(mode, center, rot, size, distance, thickness)
 end
 
 function getMousePos()
-    return Vector(love.mouse.getPosition()) / 4
+    return Vector(love.mouse.getPosition()) / scale
+end
+
+function love.math.randomChoice(list)
+    return list[love.math.random(#list)]
 end
