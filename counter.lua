@@ -8,6 +8,10 @@ function Counter:new(pos, r)
     self.mass = 1
 end
 
+function Counter:onCollide()
+    return
+end
+
 function Counter:update(dt)
     self.rect:move((self.delta * dt):unpack())
     self.delta = self.delta * .99
@@ -29,25 +33,27 @@ function Counter:update(dt)
             elseif other.owner.spikes and not self.spikes then
                 other.owner.spikes:collide(self.rect)
             end
+            self:onCollide()
+            other.owner:onCollide()
         elseif other.owner:is(Bullet) then
             other.owner:kill()
             self.health = self.health - 1
+        elseif other.owner:is(Rect) then
+            if self:is(Player) then
+                self.rect:move(separating_vector.x, separating_vector.y)
+                if other.x then
+                    self.delta.x = self.delta.x * -1
+                else
+                    self.delta.y = self.delta.y * -1
+                end
+            elseif self:is(Enemy) then
+                self:kill()
+                break
+            end
         end
     end
     if self.health <= 0 then
         self:kill()
-    end
-    local pos = Vector(self.rect:center())
-    if pos.x < 0 or pos.x > game.boardSize.x or pos.y < 0 or pos.y > game.boardSize.y then
-        if self:is(Player) then
-            if pos.x < 0 or pos.x > game.boardSize.x then
-                self.delta.x = self.delta.x * -1
-            elseif pos.y < 0 or pos.y > game.boardSize.y then
-                self.delta.y = self.delta.y * -1
-            end
-        else
-            self:kill()
-        end
     end
 end
 
@@ -70,6 +76,8 @@ function Counter:resolveCollision(separating_vector, other)
     other.owner.delta = (other.owner.delta * (other.owner.mass - self.mass) + 2 * self.mass * self.delta / (self.mass + other.owner.mass)) * 1
     self.delta = selfDelta
     --]]
+    self.rect:move(separating_vector.x / 2, separating_vector.y / 2)
+    other:move(-separating_vector.x / 2, -separating_vector.y / 2)
     local v1 = self.delta:len()
     local v2 = other.owner.delta:len()
     local m1 = self.r
@@ -81,7 +89,6 @@ function Counter:resolveCollision(separating_vector, other)
     self.delta.y =  (v1 * math.cos(theta1 - phi) * (m1 - m2) + 2 * m2 * v2 * math.cos(theta2 - phi)) * math.sin(phi) / (m1 + m2) + v1 * math.sin(theta1 - phi) * math.sin(phi + math.pi / 2)
     other.owner.delta.x =  (v2 * math.cos(theta2 - phi) * (m2 - m1) + 2 * m1 * v1 * math.cos(theta1 - phi)) * math.cos(phi) / (m1 + m2) + v2 * math.sin(theta2 - phi) * math.cos(phi + math.pi / 2)
     other.owner.delta.y =  (v2 * math.cos(theta2 - phi) * (m2 - m1) + 2 * m1 * v1 * math.cos(theta1 - phi)) * math.sin(phi) / (m1 + m2) + v2 * math.sin(theta2 - phi) * math.sin(phi + math.pi / 2)
-
 end
 
 function Counter:kill()

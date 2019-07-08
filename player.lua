@@ -4,7 +4,8 @@ local Charge = require('components.charge')
 local Shield = require('components.shield')
 
 function Player:new(pos)
-    self.super.new(self, pos, 5)
+    self.super.new(self, pos, 8)
+    self.thickness = 4
     self.charge = Charge()
     self.shield = Shield(pos, self.r)
 
@@ -44,7 +45,7 @@ end
 
 function Player:draw()
     local pos = Vector(self.rect:center())
-    local thickness = 2 + self.charge:get() / 150 * (self.r - 2)
+    local thickness = self.thickness + self.charge:get() / self.charge.max * (self.r - self.thickness)
     drawCircle('line', pos, self.r - (thickness - 2) / 2, thickness)
     self.shield:draw()
     --drawTriangle('fill', pos, self:getMouseAngle(), 4, 11, 1)

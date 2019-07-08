@@ -1,16 +1,3 @@
-function olddrawCircle(mode, pos, r, thickness)
-    local c = love.graphics.newCanvas(r * 2 + thickness, r * 2 + thickness)
-    love.graphics.push()
-    love.graphics.origin()
-    love.graphics.setCanvas(c)
-    love.graphics.setLineWidth(thickness)
-    love.graphics.circle(mode, r + thickness / 2, r + thickness / 2, r)
-    love.graphics.pop()
-    love.graphics.setCanvas()
-    love.graphics.setLineWidth(1)
-    love.graphics.draw(c, pos.x - r, pos.y - r)
-end
-
 function drawCircle(mode, pos, r, thickness)
     love.graphics.push()
     love.graphics.setLineWidth(thickness)

@@ -1,7 +1,7 @@
 Charge = Object:extend()
 
 function Charge:new()
-    self.max = 150
+    self.max = 200
     self.current = 0
     self.duration = 1.5
     self.time = 1

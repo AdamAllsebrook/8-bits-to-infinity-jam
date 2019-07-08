@@ -1,7 +1,7 @@
 Bullet = Object:extend()
 
 function Bullet:new(pos, delta)
-    self.r = 2
+    self.r = 4
     self.rect = HC.circle(pos.x, pos.y, self.r)
     self.rect.owner = self
     self.delta = delta

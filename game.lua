@@ -9,7 +9,19 @@ function Game:new()
     self:newWave()
 end
 
+function Game:makeWalls()
+    local dims = Vector(love.graphics.getDimensions()) / scale
+    local wall1 = HC.rectangle(border, border, dims.x - 2 * border, 1)
+    local wall2 = HC.rectangle(border, dims.y - border - 1, dims.x - 2 * border, 1)
+    local wall3 = HC.rectangle(dims.x - border - 1, border, 1, dims.y - 2 * border)
+    local wall4 = HC.rectangle(border, border, 1, dims.y - 2 * border)
+    wall1.owner, wall2.owner, wall3.owner, wall4.owner = Rect(), Rect(), Rect(), Rect()
+    wall1.y, wall2.y = true, true
+    wall3.x, wall4.x = true, true
+end
+
 function Game:newWave()
+    self:makeWalls()
     self.wave = self.wave + 1
     local num
     if self.wave <= 30 then
@@ -25,8 +37,8 @@ function Game:newWave()
 end
 
 function Game:spawnEnemy()
-    local list = {BasicEnemy}
-    if self.wave >= 4 then
+    local list = {BasicEnemy, SplitterEnemy}
+    if self.wave >= 0 then
         list[#list + 1] = TurretEnemy
     end
     if self.wave >= 1 then
@@ -69,17 +81,27 @@ function Game:update(dt)
 end
 
 function Game:draw()
-    local c = love.graphics.newCanvas(love.graphics.getDimensions())
+    local dims = Vector(love.graphics.getDimensions())
+    effects:send("time", love.timer.getTime()%10)
+    local c = love.graphics.newCanvas(dims.x, dims.y)
     love.graphics.setCanvas(c)
+    love.graphics.setColor(1, 1, 1, .4)
+    love.graphics.rectangle('fill', 0, 0, dims.x, dims.y)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle('line', border, border, (dims / scale - Vector(border, border) * 2):unpack())
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
             obj:draw()
         end
     end
     self.player:draw()
-    love.graphics.setCanvas()
-    love.graphics.setShader(shader)
+    local c2 = love.graphics.newCanvas(love.graphics.getDimensions())
+    love.graphics.setCanvas(c2)
+    love.graphics.setShader(scaler)
     love.graphics.draw(c)
+    love.graphics.setShader(effects)
+    love.graphics.setCanvas()
+    love.graphics.draw(c2)
     love.graphics.setShader()
     love.graphics.print(self.player.health)
     love.graphics.print(self.wave, 20, 0)
