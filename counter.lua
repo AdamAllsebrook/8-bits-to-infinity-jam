@@ -19,6 +19,7 @@ function Counter:update(dt)
         self.delta = Vector(0, 0)
     end
     local collisions = HC.collisions(self.rect)
+    local wall = false
     for other, separating_vector in pairs(collisions) do
         if other.owner:is(Counter) and not (self:is(Enemy) and other.owner:is(Player)) then
             self:resolveCollision(separating_vector, other)
@@ -32,13 +33,19 @@ function Counter:update(dt)
                 self.spikes:collide(other)
             elseif other.owner.spikes and not self.spikes then
                 other.owner.spikes:collide(self.rect)
+                if self:is(Player) then
+                    print('hit by spikes')
+                end
             end
             self:onCollide()
             other.owner:onCollide()
         elseif other.owner:is(Bullet) then
+            if self:is(Player) then
+                print('hit by bullet')
+            end
             other.owner:kill()
             self.health = self.health - 1
-        elseif other.owner:is(Rect) then
+        elseif other.owner:is(Rect) and not wall then
             if self:is(Player) then
                 self.rect:move(separating_vector.x, separating_vector.y)
                 if other.x then
@@ -46,6 +53,7 @@ function Counter:update(dt)
                 else
                     self.delta.y = self.delta.y * -1
                 end
+                wall = true
             elseif self:is(Enemy) then
                 self:kill()
                 break

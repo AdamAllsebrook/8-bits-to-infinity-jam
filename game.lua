@@ -1,20 +1,34 @@
 Game = Object:extend()
 
+local enemySpawns = {
+    {enemy=BasicEnemy, minWave=1},
+    {enemy=TurretEnemy, minWave=4},
+    {enemy=SpikyEnemy, minWave=7},
+    {enemy=SplitterEnemy, minWave=10},
+    {enemy=ExploderEnemy, minWave=13},
+}
+
 function Game:new()
     self.wave = 0
-    self.boardSize = Vector(love.graphics.getDimensions()) / scale
+    self.boardSize = Vector(190, 140)
+    self.delay = 0
+    self.waveTime = 0
     HC.resetHash()
 
-    self.player = Player(Vector(50, 50))
+    local dims = Vector(love.graphics.getDimensions()) / scale
+    local border = (dims - self.boardSize) / 2
+    self.player = Player(dims / 2)
     self:newWave()
 end
 
 function Game:makeWalls()
     local dims = Vector(love.graphics.getDimensions()) / scale
-    local wall1 = HC.rectangle(border, border, dims.x - 2 * border, 1)
-    local wall2 = HC.rectangle(border, dims.y - border - 1, dims.x - 2 * border, 1)
-    local wall3 = HC.rectangle(dims.x - border - 1, border, 1, dims.y - 2 * border)
-    local wall4 = HC.rectangle(border, border, 1, dims.y - 2 * border)
+    local border = (dims - self.boardSize) / 2
+    local w = 10
+    local wall1 = HC.rectangle(border.x, border.y - w, self.boardSize.x, 1 + w)
+    local wall2 = HC.rectangle(border.x, dims.y - border.y - 1, self.boardSize.x, 1 + w)
+    local wall3 = HC.rectangle(dims.x - border.x - 1, border.y, 1 + w, self.boardSize.y)
+    local wall4 = HC.rectangle(border.x - w, border.y, 1 + w, self.boardSize.y)
     wall1.owner, wall2.owner, wall3.owner, wall4.owner = Rect(), Rect(), Rect(), Rect()
     wall1.y, wall2.y = true, true
     wall3.x, wall4.x = true, true
@@ -30,25 +44,25 @@ function Game:newWave()
         num = 8
     end
     self.objects = {}
-    for i = 1, num do
-        self:spawnEnemy()
-    end
+    self.enemySpawns = {0, 0, 0, 0, 0}
     self.numEnemies = num
+    for i = 1, num do
+        if self:spawnEnemy() then 
+            self.numEnemies = 1
+            break
+        end
+    end
+    self.waveTime = 0
 end
 
 function Game:spawnEnemy()
-    local list = {BasicEnemy, SplitterEnemy}
-    if self.wave >= 0 then
-        list[#list + 1] = TurretEnemy
-    end
-    if self.wave >= 1 then
-        list[#list + 1] = SpikyEnemy
-    end
     local x, y, empty, rect = 0, 0, false
+    local dims = Vector(love.graphics.getDimensions()) / scale
+    local border = (dims - self.boardSize) / 2
     while not empty do
-        x = love.math.random(self.boardSize.x / 8, self.boardSize.x * 7 / 8)
-        y = love.math.random(self.boardSize.y / 8, self.boardSize.y * 7 / 8)
-        rect = HC.circle(x, y, 12)
+        x = love.math.random(border.x + 20, dims.x - border.x - 20)
+        y = love.math.random(border.y + 20, dims.y - border.y - 20)
+        rect = HC.circle(x, y, 20)
         local collisions = HC.collisions(rect)
         empty = true
         for _, _ in pairs(collisions) do
@@ -57,7 +71,19 @@ function Game:spawnEnemy()
         end
         HC.remove(rect)
     end
-    self:add(love.math.randomChoice(list)(Vector(x, y)))
+    local list = {}
+    for i, enemy in ipairs(enemySpawns) do
+        if enemy.minWave <= self.wave and self.enemySpawns[i] <= self.wave - enemy.minWave + 1 then
+            if enemy.minWave == self.wave then
+                self:add(enemy.enemy(Vector(x, y)))
+                return true
+            end
+            list[#list + 1] = {enemy=enemy.enemy, i=i}
+        end
+    end
+    local e = love.math.randomChoice(list)
+    self:add(e.enemy(Vector(x, y)))
+    self.enemySpawns[e.i] = self.enemySpawns[e.i] + 1
 end
 
 function Game:add(obj)
@@ -65,10 +91,12 @@ function Game:add(obj)
 end
 
 function Game:kill()
+    HC.resetHash()
     game = Game()
 end
 
 function Game:update(dt)
+    self.waveTime = self.waveTime + dt
     self.player:update(dt)
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
@@ -81,30 +109,19 @@ function Game:update(dt)
 end
 
 function Game:draw()
-    local dims = Vector(love.graphics.getDimensions())
-    effects:send("time", love.timer.getTime()%10)
-    local c = love.graphics.newCanvas(dims.x, dims.y)
-    love.graphics.setCanvas(c)
-    love.graphics.setColor(1, 1, 1, .4)
-    love.graphics.rectangle('fill', 0, 0, dims.x, dims.y)
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.rectangle('line', border, border, (dims / scale - Vector(border, border) * 2):unpack())
+    local dims = Vector(love.graphics.getDimensions()) / scale
+    local border = (dims - self.boardSize) / 2
+    love.graphics.rectangle('line', border.x, border.y, self.boardSize.x, self.boardSize.y)
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
             obj:draw()
         end
     end
     self.player:draw()
-    local c2 = love.graphics.newCanvas(love.graphics.getDimensions())
-    love.graphics.setCanvas(c2)
-    love.graphics.setShader(scaler)
-    love.graphics.draw(c)
-    love.graphics.setShader(effects)
-    love.graphics.setCanvas()
-    love.graphics.draw(c2)
-    love.graphics.setShader()
-    love.graphics.print(self.player.health)
-    love.graphics.print(self.wave, 20, 0)
+    if self.waveTime <= 1.5 then
+        local x = tween.easing.outInQuart(self.waveTime, -20, dims.x, 1.5)
+        love.graphics.print('WAVE ' .. tostring(self.wave), x, dims.y / 3)
+    end
 end
 
 return Game

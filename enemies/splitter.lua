@@ -27,6 +27,10 @@ end
 
 function Spiltter:draw()
     self.super.draw(self)
+    local pos = Vector(self.rect:center())
+    love.graphics.setLineWidth(2)
+    love.graphics.line(pos.x - self.r, pos.y, pos.x + self.r, pos.y)
+    love.graphics.setLineWidth(1)
 end
 
 return Spiltter

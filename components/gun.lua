@@ -2,7 +2,7 @@ Gun = Object:extend()
 
 function Gun:new()
     self.angle = 0
-    self.firerate = 1/4
+    self.firerate = 1/2
     self.timer = 0
     self.speed = 25
 end

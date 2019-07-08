@@ -34,12 +34,11 @@ function Player:kill()
 end
 
 function Player:update(dt)
-    --print(self.health)
+    self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle(), self)
     self.super.update(self, dt)
     if self.charge:update(dt) then
         self:attack()
     end
-    self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle(), self)
     time = math.min(self.shield.time, self.charge.time)
 end
 
@@ -47,8 +46,18 @@ function Player:draw()
     local pos = Vector(self.rect:center())
     local thickness = self.thickness + self.charge:get() / self.charge.max * (self.r - self.thickness)
     drawCircle('line', pos, self.r - (thickness - 2) / 2, thickness)
+    love.graphics.setColor(1, 1, 1, .5)
+    for i = -1, 1 do
+        local mode
+        if self.health + i > 1 then
+            mode = 'fill'
+        else
+            mode = 'line'
+        end
+        drawCircle(mode, pos + Vector(self.r + 3, 0):rotated(self.shield.angle - math.pi + math.pi / 6 * i), 1.5, 1)
+    end
+    love.graphics.setColor(1, 1, 1)    
     self.shield:draw()
-    --drawTriangle('fill', pos, self:getMouseAngle(), 4, 11, 1)
 end
 
 return Player
