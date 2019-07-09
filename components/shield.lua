@@ -43,6 +43,8 @@ function Shield:update(dt, pos, angle, player)
                     other:move(-separating_vector.x, -separating_vector.y)  
                     local speed = other.owner.delta:len()
                     other.owner.delta = Vector.fromPolar(angle, speed * 1.5)
+                    other.owner.deflected = true
+                    screenShake:start(.15, .15)
                 end
             elseif other.owner.spikes then
                 local diff = (pos - Vector(other:center())):normalized()

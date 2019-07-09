@@ -5,11 +5,13 @@ function Enemy:new(pos, r)
     self.thickness = 3
     self.health = 1
     self.mass = .95
+    self.chain = 1
 end
 
 function Enemy:kill()
     Enemy.super.kill(self)
     game.numEnemies = game.numEnemies - 1
+    screenShake:start(.15, .35)
 end
 
 function Enemy:update(dt)

@@ -45,3 +45,27 @@ function love.math.randomf(min, max, precision)
 	local randomnum = min + offset
 	return math.floor(randomnum * math.pow(10, precision) + 0.5) / math.pow(10, precision)
 end
+
+screenShake = {}
+screenShake.t, screenShake.dur, screenShake.mag = 0, -1, 0
+
+function screenShake:start(dur, mag)
+	if mag >= self.mag or self.t >= self.dur then
+		self.t, self.dur, self.mag = 0, dur or 1, mag
+	end
+end
+
+function screenShake:update(dt)
+	if self.t < self.dur then
+		self.t = self.t + dt
+	end
+end
+
+function screenShake:getShake()
+	local dx, dy = 0, 0
+	if self.t < self.dur then
+		dx = love.math.random(-self.mag, self.mag)
+		dy = love.math.random(-self.mag, self.mag)
+	end
+	return dx, dy
+end

@@ -1,13 +1,13 @@
 local Button = Object:extend()
 
-function Button:new(text, pos, func)
+function Button:new(text, pos, func, size)
 	self.down = false
 	self.rollover = false
-    self.text = love.graphics.newText(font.small, text)
+    self.text = love.graphics.newText(font[size or 'small'], text)
     self.size = Vector(self.text:getDimensions())
     self.pos = pos - self.size / 2
 
-	self.func = func or function () end
+	self.func = func
 end
 
 function Button:update(dt)
@@ -16,7 +16,9 @@ function Button:update(dt)
 		if love.mouse.isDown(1) then
 			self.down = true
 		elseif self.down then
-			self.func()
+			if self.func then
+				self.func()
+			end
 			self.down = false
 		else
 			self.down = false
@@ -29,11 +31,13 @@ function Button:update(dt)
 end
 
 function Button:draw()
-	if self.down then
-		love.graphics.setColor(1, 1, 1, .4)
-	elseif self.rollover then
-		love.graphics.setColor(1, 1, 1, .7)
-    end
+	if self.func then
+		if self.down then
+			love.graphics.setColor(1, 1, 1, .4)
+		elseif self.rollover then
+			love.graphics.setColor(1, 1, 1, .7)
+		end
+	end
     love.graphics.draw(self.text, self.pos.x, self.pos.y)
 	love.graphics.setColor(1, 1, 1)
 end

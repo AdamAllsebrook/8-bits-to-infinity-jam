@@ -6,6 +6,7 @@ function Spiky:new(pos)
     self.super.new(self, pos, 3)
     self.thickness = 2
     self.spikes = Spikes(pos, self.r, self)
+    self.chain = 0
 end
 
 function Spiky:update(dt)

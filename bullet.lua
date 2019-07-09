@@ -5,6 +5,7 @@ function Bullet:new(pos, delta)
     self.rect = HC.circle(pos.x, pos.y, self.r)
     self.rect.owner = self
     self.delta = delta
+    self.deflected = false
 end
 
 function Bullet:kill()

@@ -33,6 +33,9 @@ function Player:kill()
     game:kill()
 end
 
+function Player:onCollide()
+end
+
 function Player:update(dt)
     self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle(), self)
     self.super.update(self, dt)

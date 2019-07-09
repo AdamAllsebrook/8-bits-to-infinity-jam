@@ -22,6 +22,7 @@ function Counter:update(dt)
     local wall = false
     for other, separating_vector in pairs(collisions) do
         if other.owner:is(Counter) and not (self:is(Enemy) and other.owner:is(Player)) then
+            screenShake:start(.1, .1)
             self:resolveCollision(separating_vector, other)
             if self.gun then
                 self.gun.timer = 0
@@ -37,11 +38,21 @@ function Counter:update(dt)
                     print('hit by spikes')
                 end
             end
+            if self:is(Enemy) and other.owner:is(Enemy) then
+                other.owner.chain = self.chain + 1
+                game:add(FloatText('X' .. tostring(other.owner.chain), Vector(other:center())))
+            elseif self:is(Player) and other.owner:is(Enemy) then
+                other.owner.chain = 1
+            end
             self:onCollide()
             other.owner:onCollide()
         elseif other.owner:is(Bullet) then
             if self:is(Player) then
                 print('hit by bullet')
+            end
+            if self:is(Enemy) and other.owner.deflected then
+                self.chain = 2
+                game:add(FloatText('X' .. tostring(2), Vector(self.rect:center())))
             end
             other.owner:kill()
             self.health = self.health - 1
@@ -102,6 +113,9 @@ end
 function Counter:kill()
     self.dead = true
     HC.remove(self.rect)
+    if self:is(Enemy) then
+        game.score = game.score + self.chain
+    end
 end
 
 function Counter:draw()

@@ -2,16 +2,19 @@ Gun = Object:extend()
 
 function Gun:new()
     self.angle = 0
-    self.firerate = 1/2
-    self.timer = 0
-    self.speed = 25
+    self.firerate = 1/3
+    self.timer = love.math.randomf(-1, 0, 2)
+    self.speed = 30
 end
 
 function Gun:shoot(pos)
-    local bullet = Bullet(pos, Vector.fromPolar(self.angle, self.speed))
-    bullet.rect:move((bullet.delta:normalized() * bullet.r):unpack())
-    game:add(bullet)
-    self.timer = 0
+    local distance = (pos - Vector(game.player.rect:center())):len()
+    if distance > 16 then
+        local bullet = Bullet(pos, Vector.fromPolar(self.angle, self.speed))
+        bullet.rect:move((bullet.delta:normalized() * bullet.r):unpack())
+        game:add(bullet)
+        self.timer = 0
+    end
 end
 
 function Gun:update(dt, center, r)

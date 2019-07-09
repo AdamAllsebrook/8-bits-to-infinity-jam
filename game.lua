@@ -11,8 +11,8 @@ local enemySpawns = {
 function Game:new()
     self.wave = 0
     self.boardSize = Vector(190, 140)
-    self.delay = 0
     self.waveTime = 0
+    self.score = 0
     HC.resetHash()
 
     local dims = Vector(love.graphics.getDimensions()) / scale
@@ -92,10 +92,12 @@ end
 
 function Game:kill()
     HC.resetHash()
-    game = Game()
+    hiscore = math.max(hiscore, game.score)
+    startEnd()
 end
 
 function Game:update(dt)
+    screenShake:update(dt)
     self.waveTime = self.waveTime + dt
     self.player:update(dt)
     for i, obj in ipairs(self.objects) do
@@ -109,8 +111,11 @@ function Game:update(dt)
 end
 
 function Game:draw()
+    love.graphics.push()
+    love.graphics.translate(screenShake:getShake())
     local dims = Vector(love.graphics.getDimensions()) / scale
     local border = (dims - self.boardSize) / 2
+    love.graphics.print(self.score, border.x + 4, border.y)
     love.graphics.rectangle('line', border.x, border.y, self.boardSize.x, self.boardSize.y)
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
@@ -122,6 +127,7 @@ function Game:draw()
         local x = tween.easing.outInQuart(self.waveTime, -20, dims.x, 1.5)
         love.graphics.print('WAVE ' .. tostring(self.wave), x, dims.y / 3)
     end
+    love.graphics.pop()
 end
 
 return Game

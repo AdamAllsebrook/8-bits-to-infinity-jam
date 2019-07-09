@@ -27,7 +27,7 @@ function love.load()
     effects = love.graphics.newShader[[
         extern number time;
         extern number distortion = 0.1;
-        extern number aberration = 1.3;
+        extern number aberration = 1.4;
         vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords ){
             // curvature
             vec2 cc = texture_coords - 0.5f;
@@ -56,9 +56,12 @@ function love.load()
     
     --https://magodev.itch.io/magosfonts
     font = {
-        small = love.graphics.newFont('font/mago3.ttf', 16)
+        small = love.graphics.newFont('font/mago3.ttf', 16),
+        big = love.graphics.newFont('font/mago3.ttf', 32),
     }
     love.graphics.setFont(font.small)
+
+    hiscore = getHiScore()
 
     time = 1
 
@@ -73,6 +76,7 @@ function love.load()
     ExploderEnemy = require('enemies.exploder')
     SmallSpikyEnemy = require('enemies.small_spiky')
     Bullet = require('bullet')
+    FloatText = require('float_text')
     Game = require('game')
     Rect = Object:extend()
 
@@ -83,6 +87,16 @@ function love.load()
     startMenu()
 
     frame = 0
+end
+
+function getHiScore()
+    if love.filesystem.getInfo('hi.txt') then
+        return tonumber(love.filesystem.read('hi.txt'):sub(1, -1))
+    else
+        love.filesystem.newFile('hi.txt')
+        love.filesystem.write('hi.txt', '0')
+        return 0
+    end
 end
 
 function startGame()
@@ -100,12 +114,22 @@ function startPause()
     pause = Pause()
 end
 
+function startEnd()
+    gamestate = 'menu'
+    menu = Menu(true)
+end
+
 function love.keypressed(key)
     if gamestate == 'game' then
         if key == 'escape' then
             startPause()
         end
     end
+end
+
+function setScale(num)
+    scale = num
+    scaler:send('scale', scale)
 end
 
 function love.update(dt)
@@ -122,7 +146,7 @@ function love.update(dt)
 end
 
 function love.draw()    
-    love.graphics.print(love.timer.getFPS())
+    --love.graphics.print(love.timer.getFPS())
     local dims = Vector(love.graphics.getDimensions())
     effects:send("time", love.timer.getTime()%10)
     local c = love.graphics.newCanvas(dims.x, dims.y)
@@ -139,7 +163,7 @@ function love.draw()
         pause:draw()
     end
 
-    local c2 = love.graphics.newCanvas(love.graphics.getDimensions())
+    local c2 = love.graphics.newCanvas(dims.x, dims.y)
     love.graphics.setCanvas(c2)
     love.graphics.setShader(scaler)
     love.graphics.draw(c)
@@ -147,4 +171,8 @@ function love.draw()
     love.graphics.setCanvas()
     love.graphics.draw(c2)
     love.graphics.setShader()
+end
+
+function love.quit()
+    love.filesystem.write('hi.txt', tostring(hiscore))
 end

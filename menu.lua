@@ -1,21 +1,44 @@
 Menu = Object:extend()
 
-function Menu:new()
+function Menu:new(endScreen)
     local dims = Vector(love.graphics.getDimensions()) / scale
-    self.buttons = {
-        Button('START', dims / 2 + Vector(0, 10), startGame),
-        Button('QUIT', dims / 2 + Vector(0, 50), love.event.quit),
-    }
-    if love.window.getFullscreen() then
-        self.buttons[#self.buttons + 1] = Button('windowed', dims / 2 + Vector(0, 30), Closure(self.toggleFullscreen, self))
+    local y = -10
+    if endScreen then
+        self.buttons = {
+            Button('RESTART', dims / 2 + Vector(0, y + 10), startGame),
+            Button('MENU', dims / 2 + Vector(0, y + 70), startMenu)
+        }
     else
-        self.buttons[#self.buttons + 1] = Button('fullscreen', dims / 2 + Vector(0, 30), Closure(self.toggleFullscreen, self))
+        self.buttons = {
+            Button('START', dims / 2 + Vector(0, y + 10), startGame),
+            Button('QUIT', dims / 2 + Vector(0, y + 70), love.event.quit)
+        }
+    end
+    self.buttons = lume.concat(self.buttons, {
+        Button('sound off', dims / 2 + Vector(0, y + 40)),
+        Button('music off', dims / 2 + Vector(0, y + 55)),
+    })
+    if endScreen then
+        self.buttons[#self.buttons + 1] = Button(tostring(game.score), dims / 2 + Vector(0, y - 45), nil, 'big')
+        self.buttons[#self.buttons + 1] = Button('best: ' .. tostring(hiscore), dims / 2 + Vector(0, y - 25))
+    else
+        self.buttons[#self.buttons + 1] = Button('GAME NAME', dims / 2 + Vector(0, y - 35), nil, 'big')
+    end
+    if love.window.getFullscreen() then
+        self.buttons[#self.buttons + 1] = Button('windowed', dims / 2 + Vector(0, y + 25), Closure(self.toggleFullscreen, self, endScreen))
+    else
+        self.buttons[#self.buttons + 1] = Button('fullscreen', dims / 2 + Vector(0, y + 25), Closure(self.toggleFullscreen, self, endScreen))
     end
 end
 
-function Menu:toggleFullscreen()
+function Menu:toggleFullscreen(endScreen)
     love.window.setFullscreen(not love.window.getFullscreen())
-    menu = Menu()
+    if love.window.getFullscreen() then
+        setScale(5)
+    else
+        setScale(4)
+    end
+    menu = Menu(endScreen)
 end
 
 function Menu:update(dt)
