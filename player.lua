@@ -10,6 +10,10 @@ function Player:new(pos)
     self.shield = Shield(pos, self.r)
 
     self.health = 3
+
+    self.sounds.deflect = love.audio.newSource(sounds.deflect, 'static')
+    self.sounds.hurt = love.audio.newSource(sounds.hurt, 'static')
+    self.sounds.charge = love.audio.newSource(sounds.charge, 'static')
 end
 
 function Player:getMouseAngle()
@@ -26,6 +30,7 @@ function Player:attack()
     self.delta = self.delta + Vector.fromPolar(angle, power)
     self.charge.current = 0
     self.charge.time = 1
+    self.sounds.charge:play()
 end
 
 function Player:kill()
@@ -36,9 +41,15 @@ end
 function Player:onCollide()
 end
 
+function Player:onDamage()
+    screenShake:start(.3, .4)
+    self.sounds.hurt:play()
+end
+
 function Player:update(dt)
+    self.super.move(self, dt)
     self.shield:update(dt, Vector(self.rect:center()), self:getMouseAngle(), self)
-    self.super.update(self, dt)
+    self.super.checkCollisions(self, dt)
     if self.charge:update(dt) then
         self:attack()
     end

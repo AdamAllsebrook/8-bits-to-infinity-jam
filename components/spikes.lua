@@ -33,6 +33,7 @@ end
 function Spikes:collide(other)
     if not (self.hit[other.owner] and self.hit[other.owner] >= 0) then
         other.owner.health = other.owner.health - 1
+        other.owner:onDamage()
         self.hit[other.owner] = .5
     end
 end

@@ -6,12 +6,15 @@ function Enemy:new(pos, r)
     self.health = 1
     self.mass = .95
     self.chain = 1
+
+    self.sounds.enemyDie = love.audio.newSource(sounds.enemyDie, 'static')
 end
 
 function Enemy:kill()
     Enemy.super.kill(self)
     game.numEnemies = game.numEnemies - 1
     screenShake:start(.15, .35)
+    self.sounds.enemyDie:play()
 end
 
 function Enemy:update(dt)

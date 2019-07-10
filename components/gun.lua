@@ -5,6 +5,7 @@ function Gun:new()
     self.firerate = 1/3
     self.timer = love.math.randomf(-1, 0, 2)
     self.speed = 30
+    self.sounds = {shoot=love.audio.newSource(sounds.shoot, 'static')}
 end
 
 function Gun:shoot(pos)
@@ -14,6 +15,7 @@ function Gun:shoot(pos)
         bullet.rect:move((bullet.delta:normalized() * bullet.r):unpack())
         game:add(bullet)
         self.timer = 0
+        self.sounds.shoot:play()
     end
 end
 

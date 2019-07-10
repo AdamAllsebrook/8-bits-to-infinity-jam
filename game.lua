@@ -13,6 +13,7 @@ function Game:new()
     self.boardSize = Vector(190, 140)
     self.waveTime = 0
     self.score = 0
+    self.delay = 0
     HC.resetHash()
 
     local dims = Vector(love.graphics.getDimensions()) / scale
@@ -35,6 +36,7 @@ function Game:makeWalls()
 end
 
 function Game:newWave()
+    self.delay = -1
     self:makeWalls()
     self.wave = self.wave + 1
     local num
@@ -103,10 +105,19 @@ function Game:update(dt)
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
             obj:update(dt)
+        elseif obj.deadUpdate then
+            obj:deadUpdate(dt)
         end
     end    
     if self.numEnemies <= 0 then
-        self:newWave()
+        if self.delay == -1 then
+            self.delay = .5
+        end
+        if self.delay < 0 then
+            self:newWave()
+        else 
+            self.delay = self.delay - dt
+        end
     end
 end
 
@@ -120,6 +131,8 @@ function Game:draw()
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
             obj:draw()
+        elseif obj.deadDraw then
+            obj:deadDraw()
         end
     end
     self.player:draw()

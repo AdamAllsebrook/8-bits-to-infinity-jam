@@ -5,6 +5,8 @@ function Exploder:new(pos)
     self.thickness = 3
     self.timer = 0
     self.explodeAt = 3
+
+    self.sounds.explode = love.audio.newSource(sounds.explode, 'static')
 end
 
 function Exploder:update(dt)
@@ -21,6 +23,7 @@ function Exploder:update(dt)
             game.numEnemies = game.numEnemies + 1
             local bullet = Bullet(pos, Vector.fromPolar(2 * math.pi / 3 * i + math.pi / 3, 35))
             game:add(bullet)
+        self.sounds.explode:play()
         end
         self:kill()
     end

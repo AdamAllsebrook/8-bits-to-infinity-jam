@@ -11,6 +11,8 @@ function love.load()
     love.window.setMode(800, 600)--, {fullscreen=true})
     love.graphics.setDefaultFilter('nearest')
     love.graphics.setLineStyle('rough')
+    gameName = 'BIT SMASH'
+    love.window.setTitle(gameName)
 
     scale = 4
     scaler = love.graphics.newShader [[
@@ -56,12 +58,32 @@ function love.load()
     
     --https://magodev.itch.io/magosfonts
     font = {
+        tiny = love.graphics.newFont('font/mago3.ttf', 8),
         small = love.graphics.newFont('font/mago3.ttf', 16),
         big = love.graphics.newFont('font/mago3.ttf', 32),
     }
     love.graphics.setFont(font.small)
 
     hiscore = getHiScore()
+
+    sounds = {
+        collide = love.sound.newSoundData('sfx/collide.wav'),
+        deflect = love.sound.newSoundData('sfx/deflect.wav'),
+        enemyDie = love.sound.newSoundData('sfx/enemy_die.wav'),
+        explode = love.sound.newSoundData('sfx/explode.wav'),
+        hurt = love.sound.newSoundData('sfx/hurt.wav'),
+        shoot = love.sound.newSoundData('sfx/shoot.wav'),
+        charge = love.sound.newSoundData('sfx/charge.wav'),
+        click = love.audio.newSource('sfx/click.wav', 'static')
+    }
+
+    --http://freemusicarchive.org/music/RoccoW/_1035/RoccoW_-__-_04_SwingJeDing
+    music = love.audio.newSource('sfx/RoccoW_SwingJeDing.mp3', 'stream')
+    music:setLooping(true)
+    musicDefaultVol = .8
+    --music:setVolume(musicDefaultVol)
+    music:setVolume(0)
+    music:play()
 
     time = 1
 
@@ -81,6 +103,7 @@ function love.load()
     Rect = Object:extend()
 
     Menu = require('menu')
+    Credits = require('credits')
     Pause = require('pause')
     Button = require('button')
 
@@ -97,6 +120,42 @@ function getHiScore()
         love.filesystem.write('hi.txt', '0')
         return 0
     end
+end
+
+function toggleMusic(endScreen)
+    if music:getVolume() == 0 then
+        music:setVolume(musicDefaultVol)
+    else
+        music:setVolume(0)
+    end
+    menu = Menu(endScreen)
+end
+
+function toggleSound(endScreen)
+    if love.audio.getVolume() == 0 then
+    love.audio.setVolume(1)
+    else
+        love.audio.setVolume(0)
+    end
+    menu = Menu(endScreen)
+end
+
+function toggleMusicP()
+    if music:getVolume() == 0 then
+        music:setVolume(musicDefaultVol)
+    else
+        music:setVolume(0)
+    end
+    pause = Pause()
+end
+
+function toggleSoundP()
+    if love.audio.getVolume() == 0 then
+    love.audio.setVolume(1)
+    else
+        love.audio.setVolume(0)
+    end
+    pause = Pause()
 end
 
 function startGame()
@@ -117,6 +176,10 @@ end
 function startEnd()
     gamestate = 'menu'
     menu = Menu(true)
+end
+
+function startCredits()
+    menu = Credits()
 end
 
 function love.keypressed(key)

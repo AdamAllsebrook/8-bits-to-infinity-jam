@@ -45,12 +45,14 @@ function Shield:update(dt, pos, angle, player)
                     other.owner.delta = Vector.fromPolar(angle, speed * 1.5)
                     other.owner.deflected = true
                     screenShake:start(.15, .15)
+                    player.sounds.deflect:play()
                 end
             elseif other.owner.spikes then
                 local diff = (pos - Vector(other:center())):normalized()
                 local angleTo = diff:angleTo(Vector(-1, 0)) % (2 * math.pi)
                 if self.angle - self.current / 2 <= angleTo and angleTo <= self.angle + self.current / 2 then 
                     player:resolveCollision(Vector(0, 0), other)
+                    player.sounds.collide:play()
                 end
             end
         end
