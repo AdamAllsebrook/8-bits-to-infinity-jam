@@ -37,7 +37,8 @@ function Shield:update(dt, pos, angle, player)
         local collisions = HC.collisions(self.rect)
         for other, separating_vector in pairs(collisions) do
             if other.owner:is(Bullet) then
-                local diff = (pos - Vector(other:center())):normalized()
+                local otherPos = Vector(other:center()) - separating_vector
+                local diff = (pos - otherPos):normalized()
                 local angleTo = diff:angleTo(Vector(-1, 0)) % (2 * math.pi)
                 if self.angle - self.current / 2 <= angleTo and angleTo <= self.angle + self.current / 2 then 
                     other:move(-separating_vector.x, -separating_vector.y)  

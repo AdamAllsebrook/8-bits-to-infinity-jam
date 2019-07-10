@@ -52,6 +52,7 @@ function Counter:checkCollisions(dt)
             end
             if self:is(Enemy) and other.owner:is(Enemy) then
                 other.owner.chain = self.chain + 1
+                self.chain = self.chain + 1
                 game:add(FloatText('X' .. tostring(other.owner.chain), Vector(other:center())))
             elseif self:is(Player) and other.owner:is(Enemy) then
                 other.owner.chain = 1

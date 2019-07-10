@@ -63,7 +63,11 @@ function Game:spawnEnemy()
     local border = (dims - self.boardSize) / 2
     while not empty do
         x = love.math.random(border.x + 20, dims.x - border.x - 20)
-        y = love.math.random(border.y + 20, dims.y - border.y - 20)
+        if self.wave <= 4 then
+            y = love.math.random(border.y + 20, dims.y - border.y - 40)
+        else
+            y = love.math.random(border.y + 20, dims.y - border.y - 20)
+        end
         rect = HC.circle(x, y, 20)
         local collisions = HC.collisions(rect)
         empty = true
@@ -92,16 +96,27 @@ function Game:add(obj)
     self.objects[#self.objects + 1] = obj
 end
 
-function Game:kill()
-    HC.resetHash()
-    hiscore = math.max(hiscore, game.score)
-    startEnd()
+function Game:kill(dt)
+    if self.delay == -1 then
+        self.delay = .5
+    end
+    if self.delay < 0 then
+        HC.resetHash()
+        hiscore = math.max(hiscore, game.score)
+        startEnd()
+    else
+        self.delay = self.delay - dt
+    end
 end
 
 function Game:update(dt)
     screenShake:update(dt)
     self.waveTime = self.waveTime + dt
-    self.player:update(dt)
+    if self.player.dead then
+        self.player:deadUpdate(dt)
+    else
+        self.player:update(dt)
+    end
     for i, obj in ipairs(self.objects) do
         if not obj.dead then
             obj:update(dt)
@@ -119,6 +134,9 @@ function Game:update(dt)
             self.delay = self.delay - dt
         end
     end
+    if self.player.health <= 0 then
+        self:kill(dt)
+    end
 end
 
 function Game:draw()
@@ -135,10 +153,24 @@ function Game:draw()
             obj:deadDraw()
         end
     end
-    self.player:draw()
+    if self.player.dead then
+        self.player:deadDraw()
+    else
+        self.player:draw()
+    end
     if self.waveTime <= 1.5 then
         local x = tween.easing.outInQuart(self.waveTime, -20, dims.x, 1.5)
         love.graphics.print('WAVE ' .. tostring(self.wave), x, dims.y / 3)
+    end
+    if self.wave == 1 then
+        love.graphics.print('hold left mouse to charge', border.x + 1, dims.y - 35)
+        love.graphics.print('release to hit enemies away', border.x + 1, dims.y - 20)
+    elseif self.wave == 2 then
+        love.graphics.print('hit enemies into other enemies', border.x + 1, dims.y - 35)
+        love.graphics.print('to get more points', border.x + 1, dims.y - 20)
+    elseif self.wave == 4 then
+        love.graphics.print('hold right mouse to use the', border.x + 1, dims.y - 35)
+        love.graphics.print('shield, which deflects bullets', border.x + 1, dims.y - 20)
     end
     love.graphics.pop()
 end

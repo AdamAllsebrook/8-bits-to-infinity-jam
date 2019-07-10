@@ -14,6 +14,7 @@ function Player:new(pos)
     self.sounds.deflect = love.audio.newSource(sounds.deflect, 'static')
     self.sounds.hurt = love.audio.newSource(sounds.hurt, 'static')
     self.sounds.charge = love.audio.newSource(sounds.charge, 'static')
+    self.sounds.die = love.audio.newSource(sounds.playerDie, 'static')
 end
 
 function Player:getMouseAngle()
@@ -35,7 +36,7 @@ end
 
 function Player:kill()
     self.super.kill(self)
-    game:kill()
+    self.sounds.die:play()
 end
 
 function Player:onCollide()

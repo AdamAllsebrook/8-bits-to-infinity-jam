@@ -14,6 +14,12 @@ function love.load()
     gameName = 'BIT SMASH'
     love.window.setTitle(gameName)
 
+    local c = love.graphics.newCanvas(16, 16)
+    love.graphics.setCanvas(c)
+    love.graphics.draw(love.graphics.newImage('icon.png'))
+    love.graphics.setCanvas()
+    love.window.setIcon(c:newImageData())
+
     scale = 4
     scaler = love.graphics.newShader [[
     extern number scale;
@@ -74,15 +80,15 @@ function love.load()
         hurt = love.sound.newSoundData('sfx/hurt.wav'),
         shoot = love.sound.newSoundData('sfx/shoot.wav'),
         charge = love.sound.newSoundData('sfx/charge.wav'),
-        click = love.audio.newSource('sfx/click.wav', 'static')
+        click = love.audio.newSource('sfx/click.wav', 'static'),
+        playerDie = love.sound.newSoundData('sfx/player_die.wav'),
     }
 
     --http://freemusicarchive.org/music/RoccoW/_1035/RoccoW_-__-_04_SwingJeDing
     music = love.audio.newSource('sfx/RoccoW_SwingJeDing.mp3', 'stream')
     music:setLooping(true)
     musicDefaultVol = .8
-    --music:setVolume(musicDefaultVol)
-    music:setVolume(0)
+    music:setVolume(musicDefaultVol)
     music:play()
 
     time = 1
@@ -110,6 +116,7 @@ function love.load()
     startMenu()
 
     frame = 0
+    showFPS = false
 end
 
 function getHiScore()
@@ -184,9 +191,12 @@ end
 
 function love.keypressed(key)
     if gamestate == 'game' then
-        if key == 'escape' then
+        if key == 'escape' or key == 'space' then
             startPause()
         end
+    end
+    if key == '`' then
+        showFPS = not showFPS
     end
 end
 
@@ -209,7 +219,9 @@ function love.update(dt)
 end
 
 function love.draw()    
-    --love.graphics.print(love.timer.getFPS())
+    if showFPS then
+        love.graphics.print(love.timer.getFPS())
+    end
     local dims = Vector(love.graphics.getDimensions())
     effects:send("time", love.timer.getTime()%10)
     local c = love.graphics.newCanvas(dims.x, dims.y)
